@@ -1,0 +1,290 @@
+<template>
+  <van-notice-bar
+    custom-class="notice"
+    mode="closeable"
+    background="#ecf9ff"
+    color="#9ccefd"
+    text="标有*号的是必填项"
+  />
+  <block wx:for="{{llist}}" wx:for-index="type" wx:for-item="raw">
+    <view class="wrap">
+      <van-icon
+        size="20"
+        id="{{type}}"
+        bind:click="isShow"
+        name="{{show[type]?'arrow-up':'arrow-down'}}"
+      />
+      <view class="tt">{{ type }}</view>
+      <view wx:if="{{type=='title'||type=='source'||type=='content'}}" class="must">*</view>
+      <view id="{{type}}" bind:tap="onEdit" class="iconfont icon-edit myicon"></view>
+    </view>
+    <view class="raw">
+      <!-- <view wx:if="{{ show[type]&&type!='title'&&type!='chinese'&&type!='source'}}" class="tow"> -->
+      <view wx:if="{{ show[type]}}" class="tow">
+        <view wx:if="{{type=='title'||type=='chinese'||type=='source'}}" class="toww">{{
+          detail[type]
+        }}</view>
+        <towxml wx:else nodes="{{ detail[type] }}" />
+      </view>
+    </view>
+  </block>
+
+  <view class="up">
+    <button class="btn" hover_class="btn_hover" bind:tap="onUp">上传</button>
+  </view>
+
+  <!-- <van-empty wx:if="{{ pageState.state=='error' }}" image="network" description="网络错误" />
+<van-empty wx:if="{{ pageState.state=='empty' }}" image="default" description="未收录此词条" /> -->
+
+  <van-dialog class="dialog" id="van-dialog" />
+  <van-toast id="van-toast" />
+</template>
+
+<script>
+  import { createPage } from '@mpxjs/core'
+  import Toast from '../../components/vant/toast/toast'
+  import { navTo } from '../../utils/common'
+  import Dialog from '../../components/vant/dialog/dialog'
+  import { request } from '../../utils/request'
+
+  const app = getApp()
+
+  createPage({
+    data: {
+      detail: [],
+      llist: {
+        title: '',
+        chinese: '',
+        content: '',
+        proof: '',
+        remark: '',
+        example: '',
+        source: ''
+      },
+      show: {
+        title: true,
+        chinese: false,
+        content: false,
+        proof: false,
+        remark: false,
+        example: false,
+        source: true
+      }
+    },
+    onShow() {
+      this.setTowxml()
+    },
+    isShow: function(e) {
+      var type = e.currentTarget.id
+      this.setData({
+        [`show.${type}`]: !this.data.show[type]
+      })
+    },
+    //*Done
+    onEdit(e) {
+      var type = e.currentTarget.id
+      const _ts = this
+      const success_callback = res => {
+        res.eventChannel.emit('onL', _ts.data.llist[type])
+      }
+      navTo(
+        {
+          page: 'editEntry',
+          args: `?type=${type}&add=true`
+        },
+        success_callback
+      )
+    },
+    onUp() {
+      const okk = this.onTest()
+      if (okk) {
+        Dialog.confirm({
+          message: '确认上传吗？'
+        })
+          .then(() => {
+            this.onUpp()
+          })
+          .catch(err => {
+            console.log(err)
+          })
+      }
+    },
+    async onUpp() {
+      const new_entry = this.data.llist
+      try {
+        var res = await request({
+          url: '/entry/addentry',
+          data: {
+            new_entry: new_entry,
+            user_id: wx.getStorageSync('user_id')
+          },
+          method: 'PUT'
+        })
+      } catch (err) {
+        console.log(err)
+        Toast({ message: '新建词条失败！', position: 'bottom' })
+      }
+      console.log(res)
+      if (res.data.data.status == 'success') {
+        Toast({ message: '新建词条成功！', position: 'bottom' })
+        wx.navigateBack({
+          delta: 1
+        })
+      }
+    },
+    onTest() {
+      if (
+        this.data.llist.title.trim() &&
+        this.data.llist.content.trim() &&
+        this.data.llist.source.trim()
+      ) {
+        return true
+      } else {
+        Toast({ message: '有必填项未填！', position: 'bottom' })
+        return false
+      }
+    },
+    //?Doing
+    setTowxml() {
+      // const pageState = pageStates(this);
+      const { theme } = wx.getSystemInfoSync()
+      const detail = this.data.llist
+      let title = detail.title
+      let content = app.towxml(detail.content, 'markdown', {
+        theme: theme
+      })
+      let proof = app.towxml(detail.proof, 'markdown', {
+        theme: theme
+      })
+      let remark = app.towxml(detail.remark, 'markdown', {
+        theme: theme
+      })
+      let example = app.towxml(detail.example, 'markdown', {
+        theme: theme
+      })
+      let source = detail.source
+      let chinese = detail.chinese
+      let author = detail.author
+      this.setData({
+        'detail.title': title,
+        'detail.content': content,
+        'detail.proof': proof,
+        'detail.remark': remark,
+        'detail.example': example,
+        'detail.source': source,
+        'detail.chinese': chinese,
+        'detail.author': author
+      })
+      // pageState.finish();
+    }
+  })
+</script>
+
+<style lang="less">
+  page {
+    background-color: var(--pageColorLight);
+  }
+  .wrap {
+    display: flex;
+    margin: 0 20rpx;
+    align-items: center;
+    .tt {
+      font-size: 48rpx;
+      margin: 0 20rpx;
+    }
+    .must {
+      font-size: 20rpx;
+      color: red;
+    }
+    van-icon {
+      margin-left: 18rpx;
+    }
+    .myicon {
+      margin: 0 30rpx -6rpx auto;
+      font-size: 48rpx;
+      color: var(--buttonColorLight);
+    }
+    &:first-of-type {
+      margin-top: 40rpx;
+    }
+  }
+
+  .tow {
+    margin-top: -28rpx;
+  }
+  .toww {
+    margin: 40rpx 46rpx 0 36rpx;
+  }
+  .raw {
+    display: flex;
+    background-color: var(--pageColorLight);
+    margin: 15rpx 0 15rpx 0;
+  }
+  .up {
+    display: flex;
+    margin: 20rpx;
+    justify-content: center;
+  }
+
+  .btn {
+    background-color: #9ccefd;
+    border-radius: 10rpx;
+    color: #ecf9ff;
+    &::after {
+      border: 0;
+      border-radius: 10rpx;
+    }
+  }
+  .btn_hover {
+    background-color: #6c9ecd !important;
+    opacity: 0.9 !important;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    page {
+      background-color: var(--pageColorDark);
+    }
+
+    .title {
+      .chinese {
+        color: var(--commentColorLight);
+      }
+    }
+
+    .myicon {
+      color: var(--buttonColorDark);
+    }
+
+    .author {
+      background-color: var(--boardColorDark);
+    }
+    .notice {
+      background-color: #336699 !important;
+      color: #ffcccc !important;
+    }
+    .raw,
+    .wrap {
+      background-color: var(--pageColorDark);
+    }
+    .dialog {
+      --dialog-background-color: var(--pageColorDark) !important;
+      --dialog-button-bccolor: var(--pageColorDark) !important;
+      --dialog-button-color: var(--textColorDark) !important;
+    }
+  }
+</style>
+
+<script type="application/json">
+  {
+    "navigationBarTitleText": "新建",
+    "usingComponents": {
+      "towxml": "../../utils/towxml/towxml",
+      "van-dialog": "../../components/vant/dialog/index",
+      "van-toast": "../../components/vant/toast/index",
+      "split": "../../components/split-line/split-line",
+      "van-empty": "../../components/vant/empty/index",
+      "van-icon": "../../components/vant/icon/index",
+      "van-notice-bar": "../../components/vant/notice-bar/index"
+    }
+  }
+</script>

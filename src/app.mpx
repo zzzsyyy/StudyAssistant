@@ -1,0 +1,95 @@
+<script>
+  import mpx, { createApp } from '@mpxjs/core'
+  import apiProxy from '@mpxjs/api-proxy'
+
+  mpx.use(apiProxy, { usePromise: true })
+
+  createApp({
+    towxml:require('./utils/towxml/index')
+  })
+</script>
+
+<style>
+  /*此处编写全局样式*/
+  @import './styles/iconfont.wxss';
+
+  page,
+  view,
+  text,
+  image,
+  navigator {
+    padding: 0;
+    margin: 0;
+    box-sizing: border-box;
+  }
+
+  page {
+    font-family: -apple-system, BlinkMacSystemFont, 'Helvetica Neue', Helvetica, Segoe UI, Arial,
+      Roboto, 'PingFang SC', 'miui', 'Hiragino Sans GB', 'Microsoft Yahei', sans-serif;
+    font-size: 28rpx;
+    --themeColor: #1296db;
+    /* Color Light */
+    --pageColorLight: #f2f2f7;
+    --textColorLight: #515151;
+    --boardColorLight: #fff;
+    --commentColorLight: #888;
+    --buttonColorLight: #515151;
+    --buttonHoverColorLight: #f9f9f9;
+    /* Color Dark */
+    --pageColorDark: #2f3136;
+    --boardColorDark: #414449;
+    --commentColorDark: #ccc;
+    --buttonColorDark: #e6e6e6;
+    --buttonHoverColorDark: #333;
+    --textColorDark: #c0c0c0;
+  }
+</style>
+
+<script type="application/json">
+  {
+    "pages": [
+      "./pages/index/index",
+      "./pages/profile/profile",
+      "./pages/profile/about/about",
+      "./pages/profile/login/login",
+      "./pages/collection/collection",
+      "./pages/editEntry/editEntry",
+      "./pages/editEntry/previewEdit/previewEdit",
+      "./pages/entryDetail/entryDetail",
+      "./pages/searchEntry/searchEntry",
+      "./pages/myEdit/myEdit",
+      "./pages/addEntry/addEntry",
+      "./pages/updateEntry/updateEntry"
+    ],
+    "window": {
+      "backgroundTextStyle": "light",
+      "navigationBarBackgroundColor": "#f4f4f4",
+      "navigationBarTitleText": "学习助手",
+      "navigationBarTextStyle": "black"
+    },
+    "tabBar": {
+      "color": "#999",
+      "selectedColor": "#1296db",
+      "backgroundColor": "#fafafa",
+      "position": "bottom",
+      "borderStyle": "black",
+      "list": [
+        {
+          "pagePath": "pages/index/index",
+          "text": "搜索",
+          "iconPath": "assets/icons/home.png",
+          "selectedIconPath": "assets/icons/home-p.png"
+        },
+        {
+          "pagePath": "pages/profile/profile",
+          "text": "我的",
+          "iconPath": "assets/icons/my.png",
+          "selectedIconPath": "assets/icons/my-p.png"
+        }
+      ]
+    },
+    "sitemapLocation": "sitemap.json",
+    "darkmode": true,
+    "themeLocation": "theme.json"
+  }
+</script>

@@ -1,0 +1,401 @@
+<template>
+  <view class="type">{{ type }}</view>
+  <view class="voc">{{ voc }}</view>
+
+  <view class="tips">
+    <view class="tip" hover-class="tip_hover" hover-stay-time="120" data-tip="#" bind:tap="onTip">
+      #
+    </view>
+    <view class="tip" hover-class="tip_hover" hover-stay-time="120" data-tip="*" bind:tap="onTip">
+      *
+    </view>
+    <view class="tip" hover-class="tip_hover" hover-stay-time="120" data-tip="-" bind:tap="onTip">
+      -
+    </view>
+    <view class="tip" hover-class="tip_hover" hover-stay-time="120" data-tip="$" bind:tap="onTip">
+      $
+    </view>
+    <view class="tip" hover-class="tip_hover" hover-stay-time="120" data-tip=">" bind:tap="onTip">
+      >
+    </view>
+    <view class="tip" hover-class="tip_hover" hover-stay-time="120" data-tip="\\" bind:tap="onTip">
+      \
+    </view>
+    <view class="tip" hover-class="tip_hover" hover-stay-time="120" data-tip="\{" bind:tap="onTip">
+      {\
+    </view>
+    <view class="tip" hover-class="tip_hover" hover-stay-time="120" data-tip="\}" bind:tap="onTip">
+      }\
+    </view>
+  </view>
+
+  <textarea
+    wx:if="{{ flag==1 }}"
+    bind:input="onChange"
+    class="markdown"
+    value="{{ rawMD }}"
+    placeholder="开始你的编写"
+    maxlength="-1"
+  ></textarea>
+  <view wx:if="{{ flag==0 }}" class="markdown_p">{{ rawMD }}</view>
+  <van-dialog class="dialog" id="van-dialog" />
+
+  <view class="func_wrap">
+    <button bind:tap="onPreview" hover-class="btn_hover">
+      <view class="func_item">
+        <van-icon size="28" name="eye-o" class="itm"></van-icon>
+        <view class="itm_text">预览</view>
+      </view>
+    </button>
+    <button bind:tap="onClear" hover-class="btn_hover">
+      <view class="func_item">
+        <van-icon size="28" name="delete-o" class="itm"></van-icon>
+        <view class="itm_text">清空</view>
+      </view>
+    </button>
+    <button bind:tap="onUndo" hover-class="btn_hover">
+      <view class="func_item">
+        <van-icon size="28" name="replay" class="itm"></van-icon>
+        <view class="itm_text">还原</view>
+      </view>
+    </button>
+    <button bind:tap="{{add?'onOkk':'onUpload'}}" hover-class="btn_hover">
+      <view class="func_item">
+        <van-icon size="28" name="upgrade" class="itm"></van-icon>
+        <view class="itm_text">{{ add ? '确认' : '提交' }}</view>
+      </view>
+    </button>
+  </view>
+
+  <van-toast id="van-toast" />
+</template>
+
+<script>
+  import Dialog from '../../components/vant/dialog/dialog'
+  import { request } from '../../utils/request'
+  import Toast from '../../components/vant/toast/toast'
+  import { navTo } from '../../utils/common'
+  import { createPage } from '@mpxjs/core'
+
+  createPage({
+    data: {
+      type: '',
+      add: false,
+      entry_id: '',
+      rawMD: '',
+      backup: '',
+      flag: 1
+    },
+    onLoad(options) {
+      const _ts = this
+      _ts.setData({
+        type: options.type,
+        entry_id: options.entry_id,
+        add: options.add
+      })
+      const eventChannel = this.getOpenerEventChannel()
+      eventChannel.on('onL', data => {
+        _ts.setData({
+          rawMD: data,
+          backup: data
+        })
+      })
+    },
+    onTip(e) {
+      const _ts = this
+      var tip = e.currentTarget.dataset.tip
+      if (tip == 'link') {
+        tip = '[url](https://)'
+      }
+      var rawMD = _ts.data.rawMD + tip
+      _ts.setData({
+        rawMD: rawMD
+      })
+      console.log(_ts.data.rawMD)
+    },
+    onClear() {
+      this.setView(0)
+      Dialog.confirm({
+        message: '确认清空内容吗？'
+      })
+        .then(() => {
+          this.setData({
+            rawMD: ''
+          })
+        })
+        .catch(() => {})
+        .then(() => {
+          this.setView(1)
+        })
+    },
+    onPreview() {
+      const _ts = this
+      const success_callback = res => {
+        res.eventChannel.emit('onPre', _ts.data.rawMD)
+      }
+      navTo({ page: 'previewEdit' }, success_callback)
+    },
+    onChange(e) {
+      this.setData({
+        rawMD: e.detail.value
+      })
+    },
+    onUndo() {
+      this.setView(0)
+      var backup = this.data.backup
+      Dialog.confirm({
+        message: '确认还原内容吗？'
+      })
+        .then(() => {
+          this.setData({
+            rawMD: backup
+          })
+        })
+        .catch(() => {})
+        .then(() => {
+          this.setView(1)
+        })
+    },
+    onOkk() {
+      const type = this.data.type
+      let curPages = getCurrentPages()
+      let prevPage = curPages[curPages.length - 2]
+      prevPage.setData({
+        [`llist.${type}`]: this.data.rawMD
+      })
+      wx.navigateBack({
+        delta: 1
+      })
+    },
+    onTest() {
+      if (
+        this.data.rawMD.trim() &&
+        (this.data.type == 'content' || this.data.type == 'title' || this.data.type == 'source')
+      ) {
+        return true
+      } else {
+        Toast({ message: '必填项为空！', position: 'bottom' })
+        return false
+      }
+    },
+    onUpload() {
+      this.setView(0)
+      Dialog.confirm({
+        message: '确认上传吗？'
+      })
+        .then(() => {
+          this.onTest()
+          this.onUP()
+        })
+        .catch(() => {})
+        .then(() => {
+          this.setView(1)
+        })
+    },
+    setView(flag) {
+      this.setData({
+        flag: flag
+      })
+    },
+    async onUP() {
+      var { type, entry_id, rawMD } = this.data
+      try {
+        const res = await request({
+          url: '/entry/editentry',
+          method: 'POST',
+          data: {
+            type: type,
+            entry_id: entry_id,
+            rawMD: rawMD,
+            user_id: wx.getStorageSync('user_id')
+          }
+        })
+        console.log('uploading')
+        console.log(res)
+        if (res && res.data.data.status == 'success') {
+          Toast.success('提交成功！')
+          wx.navigateBack({
+            delta: 1
+          })
+        } else {
+          console.log('err'), Toast.fail('提交失败！')
+        }
+      } catch (err) {
+        console.log('err')
+        console.log(err)
+        Toast.fail('提交失败！')
+      }
+    }
+  })
+</script>
+
+<style lang="less">
+  page {
+    background-color: var(--pageColorLight);
+  }
+
+  .tips {
+    height: 60rpx;
+    margin-top: 20rpx;
+    width: 95%;
+    margin-left: 20rpx;
+    display: flex;
+    align-items: center;
+
+    .tip {
+      width: 60rpx;
+      height: 60rpx;
+      margin: 0 20rpx 0 0;
+      background-color: var(--boardColorLight);
+      text-align: center;
+      line-height: 60rpx;
+      font-size: 36rpx;
+      border-radius: 12rpx;
+    }
+  }
+
+  .markdown {
+    height: 960rpx;
+    padding: 2.5%;
+    width: 90%;
+    margin: 20rpx 0 40rpx 2.5%;
+    border-radius: 12rpx;
+    background-color: var(--boardColorLight);
+    box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
+  }
+
+  .markdown_p {
+    height: 1000rpx;
+    padding: 2.5%;
+    display: -webkit-box;
+    word-break: keep-all;
+    text-overflow: ellipsis;
+    font-size: 28rpx;
+    overflow: hidden;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 32;
+    margin: 20rpx 2.5% 40rpx 2.5%;
+    border-radius: 12rpx;
+    background-color: var(--boardColorLight);
+    box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
+  }
+
+  .tip_hover {
+    background-color: var(--buttonHoverColorLight) !important;
+  }
+
+  .type {
+    font-size: 40rpx;
+    margin-left: 20rpx;
+    margin-top: 20rpx;
+  }
+
+  .voc {
+    margin-left: 20rpx;
+    font-size: 30rpx;
+  }
+
+  .func_wrap {
+    margin: 0 20rpx 0 20rpx;
+    background-color: var(--boardColorLight);
+    border-radius: 14rpx;
+    height: 180rpx;
+    display: flex;
+    width: 95%;
+    justify-content: center;
+    align-items: center;
+    box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
+    position: absolute;
+    bottom: 60rpx;
+
+    button {
+      height: 180rpx;
+      width: 25%;
+      margin: 0;
+      border-radius: 12rpx;
+      background-color: var(--boardColorLight);
+      display: flex;
+      justify-content: center;
+
+      .func_item {
+        color: var(--buttonColorLight);
+        margin-top: 6rpx;
+        width: 100%;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+
+        .itm_text {
+          font-size: 28rpx;
+        }
+      }
+
+      &::after {
+        border: 0;
+        border-radius: 12rpx;
+      }
+    }
+  }
+
+  .btn_hover {
+    background-color: var(--buttonHoverColorLight) !important;
+    opacity: 0.9 !important;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    page {
+      background-color: var(--pageColorDark);
+    }
+
+    .tips {
+      .tip {
+        background-color: var(--boardColorDark);
+      }
+    }
+
+    .markdown {
+      background-color: var(--boardColorDark);
+    }
+
+    .markdown_p {
+      background-color: var(--boardColorDark);
+    }
+
+    .tip_hover {
+      background-color: var(--buttonHoverColorDark) !important;
+    }
+
+    .func_wrap {
+      background-color: var(--boardColorDark);
+
+      button {
+        background-color: var(--boardColorDark);
+
+        .func_item {
+          color: var(--buttonColorDark);
+        }
+      }
+    }
+
+    .btn_hover {
+      background-color: var(--buttonHoverColorDark) !important;
+    }
+    .dialog {
+      --dialog-background-color: var(--pageColorDark) !important;
+      --dialog-button-bccolor: var(--pageColorDark) !important;
+      --dialog-button-color: var(--textColorDark) !important;
+    }
+  }
+</style>
+
+<script type="application/json">
+  {
+    "navigationBarTitleText": "编辑",
+    "usingComponents": {
+      "van-icon": "../../components/vant/icon/index",
+      "van-dialog": "../../components/vant/dialog/index",
+      "van-toast": "../../components/vant/toast/index"
+    }
+  }
+</script>
