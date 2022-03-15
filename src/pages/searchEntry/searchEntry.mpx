@@ -1,0 +1,118 @@
+<template>
+  <van-search
+    value="{{ keyword }}"
+    placeholder="Entrez votre mot à rechercher"
+    use-action-slot
+    bind:search="onClick"
+    bind:change="onChange"
+    shape="round"
+    background="{{ theme=='light'?'#f1f1f7':'#191919' }}"
+    left-icon="NULL"
+  >
+    <view class="ss iconfont icon-sousuo" slot="action" bind:tap="onClick">
+      搜索
+    </view>
+  </van-search>
+
+  <view wx:if="{{ pageState.state=='loading' }}" class="sk" wx:for="{{ 7 }}"> </view>
+
+  <view wx:if="{{ pageState.state=='finish' }}" wx:for="{{ resultList }}">
+    <!-- 簡短描述 -->
+    <!-- <voc-item bind:tap="navToDetail" data-entry_id="{{ item.entry_id }}" title="{{ item.entry_title }}" desc="{{ item.entry_desc }}"/> -->
+    <entry-item
+      bind:tap="navToDetail"
+      data-entry_id="{{ item.entry_id }}"
+      title="{{ item.entry_title }}"
+    />
+  </view>
+
+  <van-empty wx:if="{{ pageState.state==='error' }}" image="network" description="网络错误" />
+
+  <van-empty wx:if="{{ pageState.state==='empty' }}" image="search" description="没有搜到内容" />
+</template>
+
+<script>
+  import { createPage } from '@mpxjs/core'
+  import { request } from '../../utils/request'
+  import { navTo } from '../../utils/common'
+  import pageStates from '../../utils/pageState'
+
+  createPage({
+    data: {
+      keyword: '',
+      resultList: []
+    },
+    //搜索框内容改变
+    onChange(e) {
+      this.setData({ keyword: e.detail })
+    },
+    onClick() {
+      this.search(this.data.keyword)
+    },
+    onLoad(options) {
+      var keyword = options.keyword
+      const { theme } = wx.getSystemInfoSync()
+      console.log(theme)
+      this.setData({ keyword, theme })
+      this.search(keyword)
+    },
+    //搜索
+    async search(keyword) {
+      const pageState = pageStates(this)
+      pageState.loading()
+      try {
+        const res = await request({
+          url: '/entry/entrysearch',
+          data: { keywords: keyword },
+          method: 'GET'
+        })
+        console.log('enteySearch', res)
+        this.setData({
+          resultList: res.data.data.result_list
+        })
+        pageState.finish()
+      } catch {
+        pageState.error()
+        console.log('neterr')
+      }
+      if (this.data.resultList.length == 0 && this.data.pageState.state != 'error') {
+        console.log('search empty')
+        pageState.empty()
+      }
+    },
+    //跳转详情页面
+    navToDetail(e) {
+      var entry_id = e.currentTarget.dataset.entry_id
+      navTo({ page: 'entryDetail', args: `?entry_id=${entry_id}` })
+    }
+  })
+</script>
+
+<style>
+  page {
+    background-color: var(--pageColorLight);
+  }
+
+  .sk {
+    margin-top: 16rpx;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    .ss {
+      color: #fff !important;
+    }
+    page {
+      background-color: var(--pageColorDark);
+    }
+  }
+</style>
+
+<script type="application/json">
+  {
+    "usingComponents": {
+      "van-search": "../../components/vant/search/index",
+      "entry-item": "../../components/entry-item/entry-item",
+      "van-empty": "../../components/vant/empty/index"
+    }
+  }
+</script>

@@ -1,0 +1,494 @@
+<template>
+  <view class="title">
+    <view class="tt">{{ detail.title }}</view>
+    <view class="chinese">{{ detail.chinese }}</view>
+  </view>
+
+  <view wx:if="{{pageState.state==='finish'&&isLogin}}" class="wrap">
+    <van-icon
+      bind:tap="onCollectThisEntry"
+      size="20"
+      color="{{is_collected?'#f3b600':''}}"
+      name="{{is_collected?'star':'star-o'}}"
+    />
+    <view bind:tap="onEditThisEntry" class="iconfont icon-bianji" />
+  </view>
+
+  <view wx:if="{{ entryDetail.content }}" class="content">
+    <van-icon
+      size="20"
+      id="content"
+      bind:click="isShow"
+      name="{{show.content?'arrow-up':'arrow-down'}}"
+    />
+    <view class="bt">Content</view>
+    <view
+      id="content"
+      bind:tap="onEdit"
+      wx:if="{{ show.content&&isLogin }}"
+      class="iconfont icon-edit myicon"
+    ></view>
+  </view>
+  <split wx:if="{{ entryDetail.content }}" />
+  <view wx:if="{{ show.content && entryDetail.content }}" class="tow">
+    <towxml nodes="{{ detail.content }}" />
+  </view>
+
+  <view wx:if="{{ entryDetail.proof }}" class="proof">
+    <van-icon
+      size="20"
+      id="proof"
+      bind:click="isShow"
+      name="{{show.proof?'arrow-up':'arrow-down'}}"
+    />
+    <view class="bt">Proof</view>
+    <view
+      id="proof"
+      bind:tap="onEdit"
+      wx:if="{{ show.proof&&isLogin }}"
+      class="iconfont icon-edit myicon"
+    ></view>
+  </view>
+  <split wx:if="{{ entryDetail.proof }}" />
+  <view wx:if="{{ show.proof && entryDetail.proof  }}" class="tow">
+    <towxml nodes="{{ detail.proof }}" />
+  </view>
+
+  <view wx:if="{{ entryDetail.remark }}" class="remark">
+    <van-icon
+      size="20"
+      id="remark"
+      bind:click="isShow"
+      name="{{show.remark?'arrow-up':'arrow-down'}}"
+    />
+    <view class="bt">Remark</view>
+    <view
+      id="remark"
+      bind:tap="onEdit"
+      wx:if="{{ show.remark&&isLogin }}"
+      class="iconfont icon-edit myicon"
+    ></view>
+  </view>
+  <split wx:if="{{ entryDetail.remark }}" />
+  <view wx:if="{{ show.remark && entryDetail.remark }}" class="tow">
+    <towxml nodes="{{ detail.remark }}" />
+  </view>
+
+  <view wx:if="{{ entryDetail.example }}" class="example">
+    <van-icon
+      size="20"
+      id="example"
+      bind:click="isShow"
+      name="{{show.example?'arrow-up':'arrow-down'}}"
+    />
+    <view class="bt">Examples</view>
+    <view
+      id="example"
+      bind:tap="onEdit"
+      wx:if="{{ show.example&&isLogin }}"
+      class="iconfont icon-edit myicon"
+    ></view>
+  </view>
+  <split wx:if="{{ entryDetail.example }}" />
+  <view wx:if="{{ show.example && entryDetail.example }}" class="tow">
+    <towxml nodes="{{ detail.example }}" />
+  </view>
+
+  <view wx:if="{{ entryDetail.source }}" class="source">
+    <van-icon
+      size="20"
+      id="source"
+      bind:click="isShow"
+      name="{{show.source?'arrow-up':'arrow-down'}}"
+    />
+    <view class="bt">Source</view>
+    <view
+      id="source"
+      bind:tap="onEdit"
+      wx:if="{{ show.source&&isLogin }}"
+      class="iconfont icon-edit myicon"
+    ></view>
+  </view>
+  <split wx:if="{{ entryDetail.source }}" />
+  <view wx:if="{{ show.source && entryDetail.source }}" class="sour">{{ detail.source }}</view>
+
+  <view wx:if="{{pageState.state==='finish'}}" class="author">
+    <view class="iconfont icon-lishi"></view>
+    <view class="edithis">由</view>
+    <view class="editor">{{ detail.author }}</view>
+    <view class="edithis">创建此词条</view>
+  </view>
+  <van-empty wx:if="{{ pageState.state=='error' }}" image="network" description="网络错误" />
+  <van-empty wx:if="{{ pageState.state=='empty' }}" image="default" description="未收录此词条" />
+  <van-toast id="van-toast" />
+</template>
+
+<script>
+  import { request } from '../../utils/request'
+  import Toast from '../../components/vant/toast/toast'
+  import { navTo } from '../../utils/common'
+  import pageStates from '../../utils/pageState'
+  import getEntryId from '../../utils/getEntryId'
+  import { errors } from '../../utils/config'
+  import {createPage} from '@mpxjs/core'
+
+  const app = getApp()
+
+  createPage({
+    data: {
+      detail: {}, //转码后的内容
+      entryDetail: {}, //未转码的内容
+      show: {
+        //控制类别是否显示
+        content: true,
+        proof: true,
+        remark: true,
+        example: true,
+        source: true
+      }
+    },
+
+    //*Done
+    onLoad(options) {
+      console.log(options)
+      const pageState = pageStates(this)
+      this.setData({ isLogin: wx.getStorageSync('isLogin') })
+      if (wx.getStorageSync('isLogin') == true) {
+        var user_id = wx.getStorageSync('user_id')
+      }
+      const entry_id = options.entry_id
+      this.setData({ entry_id, user_id })
+      if (entry_id != 0) {
+        this.showDetail(entry_id, user_id)
+      } else {
+        pageState.empty()
+      }
+    },
+    onShow() {
+      this.showDetail(this.data.entry_id, this.data.user_id)
+    },
+    //*Done
+    showDetail: async function(entry_id, user_idd) {
+      const pageState = pageStates(this)
+      const user_id = user_idd || '0'
+      pageState.loading()
+      try {
+        if (user_id != '0') {
+          var res = await request({
+            url: '/entry/entrydetail',
+            data: {
+              entry_id: entry_id,
+              user_id: user_id
+            },
+            method: 'GET'
+          })
+        } else {
+          var res = await request({
+            url: '/entry/entrydetail',
+            data: {
+              entry_id: entry_id
+            },
+            method: 'GET'
+          })
+        }
+        console.log(res)
+        this.setData({
+          entryDetail: res.data.data.entry_detail,
+          is_collected: res.data.data.is_collected
+        })
+        this.setTowxml()
+      } catch (err) {
+        if (res.data == errors.no_entry) {
+          pageState.empty()
+        } else {
+          pageState.error()
+          console.log("error in 'entryDetail.js:74'")
+          console.log(err)
+        }
+      }
+    },
+    //?Doing
+    onEdit(e) {
+      var type = e.currentTarget.id
+      var entry_id = this.data.entry_id
+      const _ts = this
+      const success_callback = res => {
+        res.eventChannel.emit('onL', _ts.data.entryDetail[type])
+      }
+      navTo(
+        {
+          page: 'editEntry',
+          args: `?type=${type}&entry_id=${entry_id}`
+        },
+        success_callback
+      )
+    },
+
+    setTowxml() {
+      const pageState = pageStates(this)
+      const { theme } = wx.getSystemInfoSync()
+      const detail = this.data.entryDetail
+      let title = detail.title
+      let content = app.towxml(detail.content, 'markdown', {
+        theme: theme,
+        events: {
+          tap: e => {
+            this.nav(e)
+          }
+        }
+      })
+      let proof = app.towxml(detail.proof, 'markdown', {
+        theme: theme,
+        events: {
+          tap: e => {
+            this.nav(e)
+          }
+        }
+      })
+      let remark = app.towxml(detail.remark, 'markdown', {
+        theme: theme,
+        events: {
+          tap: e => {
+            this.nav(e)
+          }
+        }
+      })
+      let example = app.towxml(detail.example, 'markdown', {
+        theme: theme,
+        events: {
+          tap: e => {
+            this.nav(e)
+          }
+        }
+      })
+      let source = detail.source
+      let chinese = detail.chinese
+      let author = detail.author
+      this.setData({
+        'detail.title': title,
+        'detail.content': content,
+        'detail.proof': proof,
+        'detail.remark': remark,
+        'detail.example': example,
+        'detail.source': source,
+        'detail.chinese': chinese,
+        'detail.author': author
+      })
+      pageState.finish()
+    },
+    //?Doing
+    nav: async function(e) {
+      if (e.currentTarget.dataset.data.tag == 'navigator') {
+        var entry = e.currentTarget.dataset.data.attrs.href
+        var entry_id_tmp = await getEntryId(entry)
+        if (this.data.entry_id != entry_id_tmp) {
+          wx.navigateTo({
+            url: `/pages/entryDetail/entryDetail?entry_id=${entry_id_tmp}`
+          })
+        }
+      }
+    },
+    //*Done
+    isShow: function(e) {
+      var type = e.currentTarget.id
+      this.setData({
+        [`show.${type}`]: !this.data.show[type]
+      })
+      console.log(this.data.show[type])
+    },
+    //?Doing
+    async onCollectThisEntry() {
+      if (this.data.is_collected) {
+        try {
+          const res = await request({
+            url: '/collection/delentry',
+            data: {
+              user_id: this.data.user_id,
+              entry_id: this.data.entry_id
+            },
+            method: 'DELETE'
+          })
+          if (res.data.data.status == 'success') {
+            this.setData({ is_collected: false })
+            Toast({ message: '取消收藏成功！', position: 'bottom' })
+          } else {
+            Toast({ message: '取消收藏失败！', position: 'bottom' })
+          }
+        } catch (err) {
+          console.log("error in 'entryDetail.js:191'")
+          console.log(err)
+          Toast({ message: '取消收藏失败！', position: 'bottom' })
+        }
+      } else {
+        try {
+          const res = await request({
+            url: '/collection/addentry',
+            data: {
+              user_id: this.data.user_id,
+              entry_id: this.data.entry_id
+            },
+            method: 'PUT'
+          })
+          if (res.data.data.status == 'collection_ok') {
+            this.setData({ is_collected: true })
+            Toast({ message: '收藏成功！', position: 'bottom' })
+          } else {
+            Toast({ message: '收藏失败！', position: 'bottom' })
+          }
+        } catch (err) {
+          console.log("error in 'entryDetail.js:212'")
+          console.log(err)
+          Toast({ message: '收藏失败！', position: 'bottom' })
+        }
+      }
+    },
+    onEditThisEntry() {
+      const detail = JSON.stringify(this.data.entryDetail)
+      const success_callback = res => {
+        res.eventChannel.emit('onM', detail)
+      }
+      navTo(
+        {
+          page: 'updateEntry'
+        },
+        success_callback
+      )
+    }
+  })
+</script>
+
+<style lang="less">
+  page {
+    background-color: var(--pageColorLight);
+  }
+  .title {
+    margin: 20rpx 20rpx 10rpx;
+    display: flex;
+    flex-direction: column;
+    width: 90%;
+    align-items: center;
+    .tt {
+      font-size: 52rpx;
+      margin: 4rpx 0;
+    }
+
+    .chinese {
+      font-size: 28rpx;
+      color: var(--commentColorLight);
+    }
+  }
+
+  .content,
+  .proof,
+  .remark,
+  .example,
+  .source {
+    display: flex;
+    margin: 0 20rpx;
+    align-items: center;
+
+    .bt {
+      font-size: 48rpx;
+      margin: 0 20rpx;
+      color: #272727;
+    }
+    van-icon {
+      margin-left: 18rpx;
+    }
+    .myicon {
+      margin: 0 40rpx -6rpx auto;
+      font-size: 48rpx;
+      color: var(--buttonColorLight);
+    }
+  }
+
+  .tow {
+    margin-top: -36rpx;
+  }
+
+  .sour {
+    font-size: 32rpx;
+    color: #515151;
+    margin: 8rpx 40rpx 30rpx;
+  }
+
+  .wrap {
+    display: flex;
+    background-color: var(--pageColorLight);
+    align-items: center;
+    height: 100rpx;
+    van-icon {
+      margin: 0 10rpx 0 38rpx;
+    }
+    view {
+      font-size: 38rpx;
+      margin: 0 10rpx 0 10rpx;
+    }
+  }
+
+  .author {
+    background-color: var(--pageColorLight);
+    display: flex;
+    height: 60rpx;
+    align-items: center;
+
+    view {
+      font-size: 26rpx;
+    }
+
+    .icon-lishi {
+      font-weight: bolder;
+      margin: 0 10rpx 0 38rpx;
+    }
+
+    .editor {
+      margin: 0 8rpx;
+      font-weight: bolder;
+    }
+  }
+
+  @media (prefers-color-scheme: dark) {
+    page {
+      background-color: var(--pageColorDark);
+    }
+    .sour {
+      color: #c0c0b7;
+    }
+    .title {
+      .chinese {
+        color: var(--commentColorLight);
+      }
+    }
+    .content,
+    .proof,
+    .remark,
+    .example,
+    .source {
+      .bt {
+        color: #eee;
+      }
+    }
+    .myicon {
+      color: var(--buttonColorLight);
+    }
+
+    .author {
+      background-color: var(--boardColorDark);
+    }
+    .wrap {
+      background-color: var(--pageColorDark);
+    }
+  }
+</style>
+
+<script type="application/json">
+  {
+    "usingComponents": {
+      "towxml": "../../utils/towxml/towxml",
+      "split": "../../components/split-line/split-line",
+      "van-empty": "../../components/vant/empty/index",
+      "van-icon": "../../components/vant/icon/index",
+      "van-toast": "../../components/vant/toast/index"
+    }
+  }
+</script>

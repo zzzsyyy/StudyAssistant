@@ -63,16 +63,16 @@
     ],
     "window": {
       "backgroundTextStyle": "light",
-      "navigationBarBackgroundColor": "#f4f4f4",
+      "navigationBarBackgroundColor": "@navBarBcgColor",
       "navigationBarTitleText": "学习助手",
-      "navigationBarTextStyle": "black"
+      "navigationBarTextStyle": "@navBarTxtStyle"
     },
     "tabBar": {
-      "color": "#999",
+      "color": "@tabBarTxtColor",
       "selectedColor": "#1296db",
-      "backgroundColor": "#fafafa",
+      "backgroundColor": "@tabBarBcgColor",
       "position": "bottom",
-      "borderStyle": "black",
+      "borderStyle": "@tabBarBdStyle",
       "list": [
         {
           "pagePath": "pages/index/index",

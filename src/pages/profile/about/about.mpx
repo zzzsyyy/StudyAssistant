@@ -1,0 +1,133 @@
+<template>
+  <view class="logo_wrap">
+    <image class="logo" src="../../../assets/images/logo.png" />
+  </view>
+
+  <view class="title">
+    学习助手
+  </view>
+  <view class="info"> version : {{ version }} </view>
+  <view class="info">
+    developer : zzzsy
+  </view>
+  <view class="titleee">
+    声明
+  </view>
+  <view class="board">
+    <view class="content"
+      >本程序的词条条目均来自用户的编辑上传。如发现描述有误请编辑更正或联系开发人员，以免误导大家。</view
+    >
+    <view class="content">同时欢迎大家上传词条，或向开发者反馈希望加入的知识点</view>
+    <view class="content">请勿上传无意义内容或违法内容，平台将会以技术手段进行检测拦截。</view>
+  </view>
+  <view class="titleee">
+    简介
+  </view>
+  <view class="board">
+    <view class="content">
+      本程序是一款专门面向大学生群体的学习助手软件，并且聚焦于非热门学科，针对其上课内容与专业特点，并融合学院上课资料，打造出的一款专业化的学习知识分享平台
+    </view>
+  </view>
+  <view class="titleee">
+    联系方式
+  </view>
+  <view class="board">
+    <view id="1" bind:tap="setPaste" class="content">E-mail : me@zzzsy.top</view>
+    <view id="2" bind:tap="setPaste" class="content">Wechat : zsyyy_8</view>
+  </view>
+</template>
+
+<script>
+  import { createPage } from '@mpxjs/core'
+  import { getVersion, getContact } from '../../../utils/common'
+
+  createPage({
+    data: {},
+    onLoad() {
+      const version = getVersion()
+      const contact = getContact()
+      this.setData({ version, contact })
+    },
+    setPaste(e) {
+      wx.setClipboardData({
+        data: e.currentTarget.id == 1 ? this.data.contact.email : this.data.contact.wx_id
+      })
+    }
+  })
+</script>
+
+<style lang="less">
+  page {
+    background-color: var(--pageColorLight);
+  }
+
+  .info {
+    font-size: 34rpx;
+    color: var(--commentColorLight);
+    text-align: center;
+  }
+  .title {
+    font-size: 56rpx;
+    text-align: center;
+  }
+
+  .titleee {
+    font-size: 36rpx;
+    margin-left: 30rpx;
+  }
+
+  .board {
+    margin: 20rpx 20rpx;
+    border: medium;
+    background-color: var(--boardColorLight);
+    border-radius: 16rpx;
+    display: flex;
+    flex-direction: column;
+    .content {
+      margin: 4rpx 25rpx;
+      flex: 1;
+      font-size: 30rpx;
+      color: var(--commentColorLight);
+      &:nth-of-type(1) {
+        margin-top: 25rpx;
+      }
+      &:nth-last-of-type(1) {
+        margin-bottom: 25rpx;
+      }
+    }
+  }
+
+  .logo_wrap {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 30rpx 0 40rpx 0;
+    .logo {
+      border-radius: 50%;
+      width: 260rpx;
+      height: 260rpx;
+    }
+  }
+
+  @media (prefers-color-scheme: dark) {
+    page {
+      background-color: var(--pageColorDark);
+    }
+    .info {
+      color: var(--commentColorDark);
+    }
+    .board {
+      background-color: var(--boardColorDark);
+      .content {
+        color: var(--commentColorDark);
+      }
+    }
+  }
+</style>
+
+<script type="application/json">
+  {
+    "navigationBarTitleText": "About",
+    "usingComponents": {}
+  }
+</script>

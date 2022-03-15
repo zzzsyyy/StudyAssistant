@@ -1,0 +1,335 @@
+<template>
+  <view class="login_wrap">
+    <view wx:if="{{ !isLogin }}" class="login" bind:tap="onLogin">
+      <view class="text_wrap">
+        <view class="ex1">点击登录</view>
+        <view class="ex2">登录后可以使用收藏、编辑</view>
+      </view>
+      <view class="user_icon_wrap">
+        <image wx:if="{{ !avatar }}" class="user_icon" src="../../assets/images/avatar.png" />
+        <image wx:else class="user_icon" src="{{ avatatUrl }}" />
+      </view>
+    </view>
+    <view wx:else class="login">
+      <view class="text_wrap">
+        <view class="ex1">{{ userinfo.nick_name }}</view>
+        <view class="ex2">可以使用收藏、编辑功能</view>
+      </view>
+      <view class="user_icon_wrap">
+        <image class="user_icon" src="{{ userinfo.avatar_url }}" />
+      </view>
+    </view>
+  </view>
+
+  <view class="func_wrap">
+    <button bind:tap="onCollection" hover-class="btn_hover">
+      <view class="func_item">
+        <van-icon size="28" name="star" class="itm"></van-icon>
+        <view class="itm_text">收藏</view>
+      </view>
+    </button>
+    <button bind:tap="onEdit" hover-class="btn_hover">
+      <view class="func_item">
+        <van-icon size="28" name="column" class="itm"></van-icon>
+        <view class="itm_text">我的编辑</view>
+      </view>
+    </button>
+    <button bind:tap="onAdd" hover-class="btn_hover">
+      <view class="func_item">
+        <van-icon size="28" name="column" class="itm"></van-icon>
+        <view class="itm_text">新建词条</view>
+      </view>
+    </button>
+  </view>
+
+  <view class="menu">
+    <button open-type="share" class="btn" hover-class="btn_hover">
+      <view class="iconfont icon-share myicon"></view>
+      <view class="title">分享给同学们</view>
+      <van-icon class="arrow" name="arrow"></van-icon>
+    </button>
+
+    <button open-type="feedback" class="btn" hover-class="btn_hover">
+      <view class="iconfont icon-feedback myicon"></view>
+      <view class="title">问题反馈</view>
+      <van-icon class="arrow" name="arrow"></van-icon>
+    </button>
+
+    <button bind:tap="onAbout" class="btn" hover-class="btn_hover">
+      <view class="iconfont icon-about myicon"></view>
+      <view class="title">关于程序</view>
+      <van-icon class="arrow" name="arrow"></van-icon>
+    </button>
+
+    <button wx:if="{{ user }}" bind:tap="onAway" class="btn" hover-class="btn_hover">
+      <view class="iconfont icon-deleteuser myicon warn"></view>
+      <view class="title warn">清空帐号并退出</view>
+      <van-icon class="arrow" name="arrow"></van-icon>
+    </button>
+  </view>
+
+  <van-toast id="van-toast" />
+  <van-dialog id="van-dialog" />
+</template>
+
+<script>
+  import { createPage } from '@mpxjs/core'
+  import Toast from '../../components/vant/toast/toast'
+  import Dialog from '../../components/vant/dialog/dialog'
+  import { navTo } from '../../utils/common'
+
+  createPage({
+    data: {
+      avatarUrl: '',
+      userinfo: {}
+    },
+    onLogin() {
+      navTo({ page: 'login' })
+    },
+    onShow() {
+      const isLogin = wx.getStorageSync('isLogin')
+      this.setData({ isLogin })
+      const userinfo = wx.getStorageSync('userinfo')
+      this.setData({ userinfo })
+    },
+    onAbout() {
+      navTo({ page: 'about' })
+    },
+    onCollection() {
+      if (!this.data.isLogin) {
+        Toast({ message: '无法使用,请先登录~', position: 'bottom' })
+      } else {
+        navTo({ page: 'collection' })
+      }
+    },
+    onEdit() {
+      if (!this.data.isLogin) {
+        Toast({ message: '无法使用,请先登录~', position: 'bottom' })
+      } else {
+        Toast({ position: 'bottom', message: '该功能未开放，敬请期待。' })
+        // navTo({page: 'myEdit'});
+      }
+    },
+    //Todo
+    onAway() {
+      const delUser = action =>
+        new Promise(resolve => {
+          setTimeout(() => {
+            if (action === 'confirm') {
+              resolve(true)
+            } else {
+              resolve(false)
+            }
+          }, 3000)
+        })
+      Dialog.confirm({
+        width: 280,
+        title: '提示',
+        message: '您真的想要清除帐号内容并退出吗?\n该操作不可逆'
+      })
+        .then(() => {
+          Dialog.confirm({
+            width: 280,
+            title: '再次确认',
+            message: '确实要删除帐号吗?',
+            delUser
+          })
+        })
+        .catch(() => {})
+    },
+    onAdd() {
+      if (!this.data.isLogin) {
+        Toast({ message: '无法使用,请先登录~', position: 'bottom' })
+      } else {
+        // Toast({position: 'bottom', message: '该功能未开放，敬请期待。'});
+        navTo({ page: 'addEntry' })
+      }
+    }
+  })
+</script>
+
+<style lang="less">
+  @import '../../styles/iconfont.wxss';
+
+  page {
+    background-color: var(--pageColorLight);
+  }
+
+  .login_wrap {
+    height: 220rpx;
+    margin: 28rpx 30rpx 4rpx 30rpx;
+    border: medium;
+    background-color: var(--boardColorLight);
+    border-radius: 16rpx 16rpx 0 0;
+    display: flex;
+
+    .login {
+      height: 100%;
+      display: flex;
+      margin: 20rpx 35rpx;
+
+      .user_icon_wrap {
+        margin-top: 16rpx;
+        width: 150rpx;
+        height: 150rpx;
+        display: flex;
+
+        .user_icon {
+          height: 150rpx !important;
+          width: 150rpx !important;
+          border-radius: 50% !important;
+        }
+      }
+
+      .text_wrap {
+        margin-left: 20rpx;
+        margin-top: 22rpx;
+        height: 150rpx;
+        width: 58vw;
+
+        .ex1 {
+          font-size: 46rpx;
+        }
+
+        .ex2 {
+          margin-top: 30rpx;
+          color: var(--commentColorLight);
+          font-size: 28rpx;
+        }
+      }
+    }
+  }
+
+  .func_wrap {
+    margin: 4rpx 30rpx 60rpx 30rpx;
+    background-color: var(--boardColorLight);
+    border-radius: 0 0 16rpx 16rpx;
+    height: 180rpx;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    button {
+      height: 160rpx;
+      width: 180rpx;
+      margin: 0 40rpx;
+      border-radius: 16rpx;
+      background-color: var(--boardColorLight);
+      display: flex;
+      justify-content: center;
+
+      .func_item {
+        width: 100%;
+        height: 100%;
+        display: flex;
+        margin-top: 8rpx;
+        justify-content: center;
+        flex-direction: column;
+        color: var(--buttonColorLight);
+
+        .itm_text {
+          font-size: 22rpx;
+        }
+      }
+
+      &::after {
+        border: 0;
+        border-radius: 16rpx;
+      }
+    }
+  }
+
+  .myicon {
+    margin-left: 10rpx;
+    margin-right: 20rpx;
+    color: var(--buttonColorLight);
+  }
+
+  .menu {
+    .btn {
+      .warn {
+        color: red !important;
+      }
+      margin: 4rpx 30rpx;
+      height: 108rpx;
+      background-color: var(--boardColorLight);
+      display: flex;
+      align-items: center;
+      border-radius: 0;
+
+      &::after {
+        border: 0;
+      }
+
+      &:nth-child(1) {
+        border-radius: 16rpx 16rpx 0 0;
+      }
+
+      &:nth-last-child(1) {
+        border-radius: 0 0 16rpx 16rpx;
+      }
+    }
+
+    .arrow {
+      color: #b0b0b0;
+    }
+
+    .title {
+      width: 86%;
+      text-align: left;
+      font-size: 32rpx;
+      /*margin-top: 12rpx;*/
+    }
+  }
+
+  .btn_hover {
+    background-color: var(--buttonHoverColorLight) !important;
+    opacity: 0.9 !important;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    page {
+      background-color: var(--pageColorDark);
+    }
+
+    .login_wrap {
+      background-color: var(--boardColorDark);
+
+      .ex2 {
+        color: var(--commentColorDark);
+      }
+    }
+
+    .func_wrap {
+      background-color: var(--boardColorDark);
+      button {
+        background-color: var(--boardColorDark);
+        .func_item {
+          color: var(--buttonColorDark);
+        }
+      }
+    }
+    .myicon {
+      color: var(--buttonColorDark);
+    }
+    .menu {
+      .btn {
+        background-color: var(--boardColorDark);
+      }
+    }
+    .btn_hover {
+      background-color: var(--buttonHoverColorDark) !important;
+      opacity: 0.6 !important;
+    }
+  }
+</style>
+
+<script type="application/json">
+  {
+    "usingComponents": {
+      "van-icon": "../../components/vant/icon/index",
+      "van-toast": "../../components/vant/toast/index",
+      "van-dialog": "../../components/vant/dialog/index"
+    }
+  }
+</script>
