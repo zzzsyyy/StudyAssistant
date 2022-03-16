@@ -66,7 +66,7 @@
     data: {
       collection: [],
       management: false, //控制管理条目（即复选框是否显示）
-      select_all: false, //是否全选
+      // select_all: false, //是否全选
       userCollection_management: [], //与checkbox关联的条目列表
       checked_num: 0 //选择的条数
     },
