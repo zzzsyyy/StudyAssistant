@@ -2,31 +2,13 @@
   <view class="type">{{ type }}</view>
   <view class="voc">{{ voc }}</view>
 
+<!-- Doing -->
   <view class="tips">
-    <view class="tip" hover-class="tip_hover" hover-stay-time="120" data-tip="#" bind:tap="onTip">
-      #
+    <block wx:for="{{tips}}">
+    <view class="tip" hover-class="tip_hover" hover-stay-time="120" data-tip="{{item}}" bind:tap="onTip">
+      {{item}}
     </view>
-    <view class="tip" hover-class="tip_hover" hover-stay-time="120" data-tip="*" bind:tap="onTip">
-      *
-    </view>
-    <view class="tip" hover-class="tip_hover" hover-stay-time="120" data-tip="-" bind:tap="onTip">
-      -
-    </view>
-    <view class="tip" hover-class="tip_hover" hover-stay-time="120" data-tip="$" bind:tap="onTip">
-      $
-    </view>
-    <view class="tip" hover-class="tip_hover" hover-stay-time="120" data-tip=">" bind:tap="onTip">
-      >
-    </view>
-    <view class="tip" hover-class="tip_hover" hover-stay-time="120" data-tip="\\" bind:tap="onTip">
-      \
-    </view>
-    <view class="tip" hover-class="tip_hover" hover-stay-time="120" data-tip="\{" bind:tap="onTip">
-      {\
-    </view>
-    <view class="tip" hover-class="tip_hover" hover-stay-time="120" data-tip="\}" bind:tap="onTip">
-      }\
-    </view>
+    </block>
   </view>
 
   <textarea
@@ -84,7 +66,8 @@
       entry_id: '',
       rawMD: '',
       backup: '',
-      flag: 1
+      flag: 1,
+      tips:['#','*','-','$','>','\\','{','}']
     },
     onLoad(options) {
       const _ts = this
@@ -104,6 +87,7 @@
     onTip(e) {
       const _ts = this
       var tip = e.currentTarget.dataset.tip
+      //Todo
       if (tip == 'link') {
         tip = '[url](https://)'
       }
@@ -111,7 +95,7 @@
       _ts.setData({
         rawMD: rawMD
       })
-      console.log(_ts.data.rawMD)
+      // console.log(_ts.data.rawMD)
     },
     onClear() {
       this.setView(0)
