@@ -1,0 +1,98 @@
+<template>
+  <view class="wrap">
+    <view class="title_wrap">
+      <view class="title">
+        {{ title }}
+      </view>
+      <view wx:if="{{ flag }}" class="chbox">
+        <slot></slot>
+      </view>
+    </view>
+
+    <view class="desc_wrap">
+      <view class="desc">
+            {{ desc}}
+        </view>
+    </view>
+  </view>
+</template>
+
+<script>
+  import { createComponent } from '@mpxjs/core'
+
+  createComponent({
+    behaviors: [],
+    properties: {
+      title: {
+        type: String,
+        value: ''
+      },
+      //Doing
+      desc: {
+        type: String,
+        value: ''
+      },
+      flag: {
+        type: Boolean,
+        value: false
+      }
+    },
+    data: {},
+    lifetimes: {
+      created() {},
+      attached() {},
+      moved() {},
+      detached() {}
+    },
+    methods: {}
+  })
+</script>
+
+<style lang="less">
+  .wrap {
+    // background-color: #fff;
+    display: flex;
+    width: 90%;
+    margin: 20rpx 40rpx 20rpx;
+    flex-direction: column;
+    .title_wrap {
+      // background-color: #333;
+      display: flex;
+      .title {
+        font-size: 42rpx;
+        width: 80%;
+        margin-bottom: 8rpx;
+      }
+      .chbox {
+        margin-left: auto;
+        margin-right: 12rpx;
+      }
+    }
+
+    .desc_wrap {
+      display: flex;
+      .chbox {
+        margin-left: 10rpx;
+      }
+    }
+    .desc {
+      width: 100%;
+      margin-left: 6rpx;
+      font-size: 24rpx;
+      color: #888888;
+      display: -webkit-box;
+      word-break: break-all;
+      text-overflow: ellipsis;
+      font-size: 28rpx;
+      overflow: hidden;
+      -webkit-box-orient: vertical;
+      -webkit-line-clamp: 2;
+    }
+  }
+</style>
+
+<script type="application/json">
+  {
+    "component": true
+  }
+</script>

@@ -1,0 +1,47 @@
+<template>
+  <view class="divider">
+    <view></view>
+  </view>
+</template>
+
+<script>
+  import { createComponent } from '@mpxjs/core'
+
+  Component({
+    behaviors: [],
+    properties: {},
+    data: {},
+    lifetimes: {
+      created() {},
+      attached() {},
+      moved() {},
+      detached() {}
+    },
+    methods: {}
+  })
+</script>
+
+<style lang="less">
+  .divider {
+    width: 96%;
+    height: 50rpx;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: start;
+    margin: 0 0 0 2%;
+  }
+
+  .divider view {
+    width: 90%;
+    height: 4rpx;
+    margin-left: 20rpx;
+    background-color: #c4c4c4;
+  }
+</style>
+
+<script type="application/json">
+  {
+    "component": true
+  }
+</script>

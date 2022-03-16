@@ -16,14 +16,14 @@ VantComponent({
     useRightIconSlot: Boolean,
     leftIcon: {
       type: String,
-      value: 'search',
+      value: ''
     },
     rightIcon: String,
     placeholder: String,
     placeholderStyle: String,
     actionText: {
       type: String,
-      value: '取消',
+      value: 'Cancel',
     },
     background: {
       type: String,
