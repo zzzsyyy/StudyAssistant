@@ -1,0 +1,124 @@
+<template>
+  <view wx:if="{{ !no_edit && !loading}}" class="wrap">
+    <view class="edit_wrap">
+      <view class="edit">我的编辑</view>
+    </view>
+    <view class="divider">
+      <view></view>
+    </view>
+
+    <view
+      data-voc="{{ item.title }}"
+      class="voc_wrap"
+      bind:tap="{{ onDetail }}"
+      wx:for="{{ user_edit }}"
+      wx:key="{{ item.id }}"
+    >
+      <entry-item title="{{ item.title }}" meta="{{ item.meta }}" flag="{{ false }}"> </entry-item>
+      <view class="divider">
+        <view></view>
+      </view>
+    </view>
+  </view>
+
+  <van-empty wx:if="{{ no_edit }}" description="这里空空如也～" />
+  <van-empty image="network" wx:if="{{ netErr }}" description="网络错误" />
+</template>
+
+<script>
+  import { createPage } from '@mpxjs/core'
+  import { navTo } from '../../utils/common'
+  import { request } from '../../utils/request'
+  import pageStates from '../../utils/pageState'
+
+  createPage({
+    data: {
+      user_edit: []
+    },
+    async onLoad(options) {
+      const pageState = pageStates(this)
+      pageState.loading()
+      try {
+        const res = await request({
+          url: '/useredit',
+          data: {
+            user_id: wx.getStorageSync('user_id')
+          },
+          method: 'POST'
+        })
+        wx.setStorageSync('useredit', res.data.data.useredit)
+        this.setData({ user_edit: wx.getStorageSync('useredit') })
+      } catch (err) {
+        console.log("error in 'myEdit.js:52'")
+        console.log(err)
+      }
+    },
+    onDetail(e) {
+      var { entry } = e.currentTarget.dataset
+      //Todo
+      navTo({ page: 'entryDetail', args: `?entry_id=${entry_id_tmp}` })
+    },
+    onAdd() {
+      console.log('add')
+    }
+  })
+</script>
+
+<style lang="less">
+  page {
+    background-color: var(--pageColorLight);
+  }
+
+  .wrap {
+    display: flex;
+    background-color: var(--boardColorLight);
+    margin: 40rpx 20rpx 0;
+    border-radius: 16rpx;
+    flex-direction: column;
+
+    .edit_wrap {
+      width: 100%;
+      height: 80rpx;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+
+      /*background-color: #f8f8f8;*/
+      .edit {
+        font-size: 32rpx;
+        margin: 10rpx 0 0 20rpx;
+      }
+    }
+  }
+
+  .divider {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    margin: 8rpx 0 8rpx;
+    view {
+      width: 90%;
+      height: 2rpx;
+      background-color: #f4f4f4;
+    }
+  }
+
+  @media (prefers-color-scheme: dark) {
+    page {
+      background-color: var(--pageColorDark);
+    }
+    .wrap {
+      background-color: var(--boardColorDark);
+    }
+  }
+</style>
+
+<script type="application/json">
+  {
+    "navigationBarTitleText": "我的编辑",
+    "usingComponents": {
+      "entry-item": "../../components/entry-item/entry-item"
+    }
+  }
+</script>
