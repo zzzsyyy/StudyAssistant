@@ -1,7 +1,12 @@
 <template>
-  <view wx:if="{{ !no_edit && !loading}}" class="wrap">
+  <view wx:if="{{ pageState.state === 'finish' }}" class="wrap">
     <view class="edit_wrap">
       <view class="edit">我的编辑</view>
+      <view class="btn_wrap">
+        <button hover-class="btn_hover" bind:tap="onAdd" class="add">
+          新建
+        </button>
+      </view>
     </view>
     <view class="divider">
       <view></view>
@@ -14,15 +19,15 @@
       wx:for="{{ user_edit }}"
       wx:key="{{ item.id }}"
     >
-      <entry-item title="{{ item.title }}" meta="{{ item.meta }}" flag="{{ false }}"> </entry-item>
+      <entry-item title="{{ item.entry_title }}" flag="{{ false }}"> </entry-item>
       <view class="divider">
         <view></view>
       </view>
     </view>
   </view>
 
-  <van-empty wx:if="{{ no_edit }}" description="这里空空如也～" />
-  <van-empty image="network" wx:if="{{ netErr }}" description="网络错误" />
+  <van-empty wx:if="{{ pageState.state === 'empty' }}" description="这里空空如也～" />
+  <van-empty image="network" wx:if="{{ pageState.state === 'error' }}" description="发生错误惹~" />
 </template>
 
 <script>
@@ -46,20 +51,28 @@
           },
           method: 'POST'
         })
-        wx.setStorageSync('useredit', res.data.data.useredit)
-        this.setData({ user_edit: wx.getStorageSync('useredit') })
+        console.log(res)
+        const userEdit = res.data.data.myedit_list
+        wx.setStorageSync('useredit', userEdit)
+        this.setData({ user_edit: userEdit })
       } catch (err) {
+        pageState.error()
         console.log("error in 'myEdit.js:52'")
         console.log(err)
       }
+      if (this.data.user_edit.length == 0 && this.data.pageState.state != 'error') {
+        console.log('get empty')
+        pageState.empty()
+      } else if (this.data.pageState.state == 'loading') {
+        pageState.finish()
+      }
     },
     onDetail(e) {
-      var { entry } = e.currentTarget.dataset
-      //Todo
+      var { entry_id } = e.currentTarget.dataset
       navTo({ page: 'entryDetail', args: `?entry_id=${entry_id_tmp}` })
     },
     onAdd() {
-      console.log('add')
+      navTo({ page: 'addEntry' })
     }
   })
 </script>
@@ -91,6 +104,28 @@
     }
   }
 
+  .btn_wrap {
+    display: flex;
+    align-items: center;
+    margin-right: 14rpx;
+    .add {
+      font-size: 24rpx;
+      height: 56rpx;
+      width: 110rpx;
+      background-color: #eee;
+      border-radius: 12rpx;
+      &::after {
+        border: 0;
+        border-radius: 12rpx;
+      }
+    }
+  }
+
+  .btn_hover {
+    background-color: #dcdcdc !important;
+    opacity: 0.9 !important;
+  }
+
   .divider {
     display: flex;
     align-items: center;
@@ -111,6 +146,11 @@
     .wrap {
       background-color: var(--boardColorDark);
     }
+    .btn_wrap {
+      .add {
+        background-color: #333;
+      }
+    }
   }
 </style>
 
@@ -118,7 +158,8 @@
   {
     "navigationBarTitleText": "我的编辑",
     "usingComponents": {
-      "entry-item": "../../components/entry-item/entry-item"
+      "entry-item": "../../components/entry-item/entry-item",
+      "van-empty": "../../components/vant/empty/index"
     }
   }
 </script>
