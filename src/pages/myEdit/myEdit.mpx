@@ -45,7 +45,7 @@
       pageState.loading()
       try {
         const res = await request({
-          url: '/useredit',
+          url: '/entry/myedit',
           data: {
             user_id: wx.getStorageSync('user_id')
           },
