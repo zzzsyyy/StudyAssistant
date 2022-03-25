@@ -13,11 +13,10 @@
     </view>
 
     <view
-      data-voc="{{ item.title }}"
-      class="voc_wrap"
-      bind:tap="{{ onDetail }}"
+      data-entry_id="{{ item.entry_id }}"
+      bind:tap="onDetail"
       wx:for="{{ user_edit }}"
-      wx:key="{{ item.id }}"
+      wx:key="{{ item.entry_id }}"
     >
       <entry-item title="{{ item.entry_title }}" flag="{{ false }}"> </entry-item>
       <view class="divider">
@@ -52,7 +51,7 @@
           method: 'POST'
         })
         console.log(res)
-        const userEdit = res.data.data.myedit_list
+        const userEdit = res.data.data.Search_list
         wx.setStorageSync('useredit', userEdit)
         this.setData({ user_edit: userEdit })
       } catch (err) {
@@ -69,7 +68,9 @@
     },
     onDetail(e) {
       var { entry_id } = e.currentTarget.dataset
-      navTo({ page: 'entryDetail', args: `?entry_id=${entry_id_tmp}` })
+      console.log(e.currentTarget)
+      console.log(entry_id)
+      navTo({ page: 'entryDetail', args: `?entry_id=${entry_id}` })
     },
     onAdd() {
       navTo({ page: 'addEntry' })

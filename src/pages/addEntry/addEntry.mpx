@@ -105,12 +105,15 @@
             this.onUpp()
           })
           .catch(err => {
+            console.log("err at addEntry: 108")
             console.log(err)
           })
       }
     },
     async onUpp() {
       const new_entry = this.data.llist
+      console.log("entry", new_entry)
+      console.log("user_id",wx.getStorageSync('user_id'))
       try {
         var res = await request({
           url: '/entry/addentry',
@@ -121,15 +124,17 @@
           method: 'PUT'
         })
       } catch (err) {
-        console.log(err)
+        console.log("err at addEntry: 127",err)
         Toast({ message: '新建词条失败！', position: 'bottom' })
       }
-      console.log(res)
       if (res.data.data.status == 'success') {
         Toast({ message: '新建词条成功！', position: 'bottom' })
         wx.navigateBack({
           delta: 1
         })
+      } else {
+        console.log(res)
+        Toast({ message: '新建词条失败！', position: 'bottom' })
       }
     },
     onTest() {
