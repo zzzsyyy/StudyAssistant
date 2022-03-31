@@ -17,7 +17,7 @@
     您的信息仅用作收藏及上传功能。
   </view>
   <view class="foot">
-    Copyright ©️ 2022 École Centrale Pékin
+    Copyright ©️ 2021 École Centrale Pékin
   </view>
 </template>
 
@@ -72,7 +72,34 @@
     },
     onClick() {
       navTo({ page: 'index' })
-    }
+    },
+        //Todo
+    onAway() {
+      const delUser = action =>
+        new Promise(resolve => {
+          setTimeout(() => {
+            if (action === 'confirm') {
+              resolve(true)
+            } else {
+              resolve(false)
+            }
+          }, 3000)
+        })
+      Dialog.confirm({
+        width: 280,
+        title: '提示',
+        message: '您真的想要清除帐号内容并退出吗?\n该操作不可逆'
+      })
+        .then(() => {
+          Dialog.confirm({
+            width: 280,
+            title: '再次确认',
+            message: '确实要删除帐号吗?',
+            delUser
+          })
+        })
+        .catch(() => {})
+    },
   })
 </script>
 
