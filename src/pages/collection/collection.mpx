@@ -1,5 +1,6 @@
 <template>
-  <view wx:if="{{ pageState.state === 'finish'}}" class="wrap">
+  <van-loading color="#1989fa" wx:if="{{state=='loading'}}"/>
+  <view wx:if="{{ state == 'finish'}}" class="wrap">
     <view class="fav_wrap">
       <view class="fav">我的收藏</view>
       <view class="btn_wrap">
@@ -52,15 +53,14 @@
     </view>
   </view>
 
-  <van-empty wx:if="{{ pageState.state === 'empty' }}" description="这里空空如也～" />
-  <van-empty image="network" wx:if="{{ pageState.state === 'error' }}" description="发生错误惹" />
+  <van-empty wx:if="{{ state == 'empty' }}" description="这里空空如也～" />
+  <van-empty image="network" wx:if="{{ state == 'error' }}" description="发生错误惹" />
 </template>
 
 <script>
   import { createPage } from '@mpxjs/core'
   import { navTo } from '../../utils/common'
   import { request } from '../../utils/request'
-  import pageStates from '../../utils/pageState'
 
   createPage({
     data: {
@@ -68,13 +68,13 @@
       management: false, //控制管理条目（即复选框是否显示）
       // select_all: false, //是否全选
       userCollection_management: [], //与checkbox关联的条目列表
-      checked_num: 0 //选择的条数
+      checked_num: 0, //选择的条数
+      state: ''
     },
     async onLoad(options) {
       //!Doing
       // this.onUnload();
-      const pageState = pageStates(this)
-      pageState.loading()
+      this.setData({ state: 'loading' })
       try {
         const res = await request({
           url: '/collection/sync',
@@ -89,12 +89,12 @@
         this.setData({ collection: userCollection })
         this.init()
       } catch {
-        pageState.error()
+        this.setData({ state: 'error' })
         console.log('err in getting collection')
       }
-      if (this.data.collection.length == 0 && this.data.pageState.state != 'error') {
+      if (this.data.collection.length == 0 && this.data.state != 'error') {
         console.log('search empty')
-        pageState.empty()
+        this.setData({ state: 'empty' })
       }
     },
     //开启条目管理
@@ -117,7 +117,6 @@
     },
     //初始化，将本地存储添加checked属性，用于页面展示
     init: function() {
-      const pageState = pageStates(this)
       var arr = this.data.collection
       var arr2 = []
       arr.map(item => {
@@ -125,7 +124,7 @@
       })
       console.log('init')
       this.setData({ userCollection_management: arr2 })
-      pageState.finish()
+      this.setData({ state: 'finish' })
     },
     //条目选择
     select: function(e) {
@@ -330,7 +329,8 @@
     "usingComponents": {
       "entry-item": "../../components/entry-item/entry-item",
       "van-empty": "../../components/vant/empty/index",
-      "van-checkbox": "../../components/vant/checkbox/index"
+      "van-checkbox": "../../components/vant/checkbox/index",
+      "van-loading": "../../components/vant/loading/index"
     }
   }
 </script>

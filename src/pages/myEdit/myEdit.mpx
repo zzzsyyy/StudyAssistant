@@ -1,5 +1,6 @@
 <template>
-  <view wx:if="{{ pageState.state === 'finish' }}" class="wrap">
+  <van-loading color="#1989fa" wx:if="{{state=='loading'}}"/>
+  <view wx:if="{{ state == 'finish' }}" class="wrap">
     <view class="edit_wrap">
       <view class="edit">我的编辑</view>
       <view class="btn_wrap">
@@ -25,8 +26,8 @@
     </view>
   </view>
 
-  <van-empty wx:if="{{ pageState.state === 'empty' }}" description="这里空空如也～" />
-  <van-empty image="network" wx:if="{{ pageState.state === 'error' }}" description="发生错误惹~" />
+  <van-empty wx:if="{{ state == 'empty' }}" description="这里空空如也～" />
+  <van-empty image="network" wx:if="{{ state == 'error' }}" description="发生错误惹~" />
 </template>
 
 <script>
@@ -37,11 +38,13 @@
 
   createPage({
     data: {
-      user_edit: []
+      user_edit: [],
+      state: ''
     },
     async onLoad(options) {
-      const pageState = pageStates(this)
-      pageState.loading()
+      // const pageState = pageStates(this)
+      this.setData({ state: 'loading' })
+      // pageState.loading()
       try {
         const res = await request({
           url: '/entry/myedit',
@@ -55,15 +58,18 @@
         wx.setStorageSync('useredit', userEdit)
         this.setData({ user_edit: userEdit })
       } catch (err) {
-        pageState.error()
+        // pageState.error()
+        this.setData({ state: 'error' })
         console.log("error in 'myEdit.js:52'")
         console.log(err)
       }
-      if (this.data.user_edit.length == 0 && this.data.pageState.state != 'error') {
+      if (this.data.user_edit.length == 0 && this.data.state != 'error') {
         console.log('get empty')
-        pageState.empty()
-      } else if (this.data.pageState.state == 'loading') {
-        pageState.finish()
+        // pageState.empty()
+        this.setData({ state: 'empty' })
+      } else if (this.data.state == 'loading') {
+        // pageState.finish()
+        this.setData({ state: 'finish' })
       }
     },
     onDetail(e) {
@@ -160,7 +166,8 @@
     "navigationBarTitleText": "我的编辑",
     "usingComponents": {
       "entry-item": "../../components/entry-item/entry-item",
-      "van-empty": "../../components/vant/empty/index"
+      "van-empty": "../../components/vant/empty/index",
+      "van-loading": "../../components/vant/loading/index"
     }
   }
 </script>

@@ -59,7 +59,8 @@
       "./pages/searchEntry/searchEntry",
       "./pages/myEdit/myEdit",
       "./pages/addEntry/addEntry",
-      "./pages/updateEntry/updateEntry"
+      "./pages/updateEntry/updateEntry",
+      "./pages/entryDetail/questions"
     ],
     "window": {
       "backgroundTextStyle": "light",

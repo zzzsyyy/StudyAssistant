@@ -33,9 +33,6 @@
     <button class="btn" hover_class="btn_hover" bind:tap="onUp">上传</button>
   </view>
 
-  <!-- <van-empty wx:if="{{ pageState.state=='error' }}" image="network" description="网络错误" />
-<van-empty wx:if="{{ pageState.state=='empty' }}" image="default" description="未收录此词条" /> -->
-
   <van-dialog class="dialog" id="van-dialog" />
   <van-toast id="van-toast" />
 </template>
@@ -167,7 +164,6 @@
     },
     //?Doing
     setTowxml() {
-      // const pageState = pageStates(this);
       const { theme } = wx.getSystemInfoSync()
       const detail = this.data.llist
       let title = detail.title
@@ -196,7 +192,6 @@
         'detail.chinese': chinese,
         'detail.author': author
       })
-      // pageState.finish();
     }
   })
 </script>

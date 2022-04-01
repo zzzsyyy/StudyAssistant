@@ -17,6 +17,7 @@ const pages = {
   myEdit: "/pages/myEdit/myEdit",
   addEntry: "/pages/addEntry/addEntry",
   updateEntry: "/pages/updateEntry/updateEntry",
+  questions: "/pages/entryDetail/questions"
 };
 const errors = {
   no_entry: "Entry matching query does not exist."

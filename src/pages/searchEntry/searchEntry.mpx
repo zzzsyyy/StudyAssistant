@@ -13,9 +13,9 @@
     </view>
   </van-search>
 
-  <view wx:if="{{ pageState.state=='loading' }}" class="sk" wx:for="{{ 7 }}"> </view>
+  <van-skeleton wx:if="{{ state=='loading' }}" class="sk" wx:for="{{ 7 }}"> </van-skeleton>
 
-  <view wx:if="{{ pageState.state=='finish' }}" wx:for="{{ resultList }}">
+  <view wx:if="{{ state=='finish' }}" wx:for="{{ resultList }}">
     <entry-item
       bind:tap="navToDetail"
       data-entry_id="{{ item.entry_id }}"
@@ -24,9 +24,9 @@
     />
   </view>
 
-  <van-empty wx:if="{{ pageState.state==='error' }}" image="network" description="网络错误" />
+  <van-empty wx:if="{{ state=='error' }}" image="network" description="网络错误" />
 
-  <van-empty wx:if="{{ pageState.state==='empty' }}" image="search" description="没有搜到内容" />
+  <van-empty wx:if="{{ state=='empty' }}" image="search" description="没有搜到内容" />
 </template>
 
 <script>
@@ -38,7 +38,8 @@
   createPage({
     data: {
       keyword: '',
-      resultList: []
+      resultList: [],
+      state: ''
     },
     //搜索框内容改变
     onChange(e) {
@@ -48,6 +49,7 @@
       this.search(this.data.keyword)
     },
     onLoad(options) {
+            this.setData({ state: 'loading' })
       var keyword = options.keyword
       const { theme } = wx.getSystemInfoSync()
       console.log(theme)
@@ -56,8 +58,6 @@
     },
     //搜索
     async search(keyword) {
-      const pageState = pageStates(this)
-      pageState.loading()
       try {
         const res = await request({
           url: '/entry/entrysearch',
@@ -68,14 +68,15 @@
         this.setData({
           resultList: res.data.data.result_list
         })
-        pageState.finish()
+        this.setData({ state: 'finish' })
+
       } catch {
-        pageState.error()
+        this.setData({ state: 'error' })
         console.log('neterr')
       }
-      if (this.data.resultList.length == 0 && this.data.pageState.state != 'error') {
+      if (this.data.resultList.length == 0 && this.data.state != 'error') {
         console.log('search empty')
-        pageState.empty()
+        this.setData({ state: 'finish' })
       }
     },
     //跳转详情页面
@@ -110,7 +111,8 @@
     "usingComponents": {
       "van-search": "../../components/vant/search/index",
       "entry-item": "../../components/entry-item/entry-item",
-      "van-empty": "../../components/vant/empty/index"
+      "van-empty": "../../components/vant/empty/index",
+      "van-skeleton": "../../components/vant/skeleton/index"
     }
   }
 </script>
