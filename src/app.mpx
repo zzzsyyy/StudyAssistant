@@ -22,7 +22,12 @@
     margin: 0;
     box-sizing: border-box;
   }
-
+  .loading_wrap {
+    position: absolute;
+    left: 50%;
+    top: 48%;
+    transform: translate(-50%, -50%);
+  }
   page {
     font-family: PingFang SC, Lantinghei SC, Microsoft Yahei, Hiragino Sans GB, Microsoft Sans Serif,
       WenQuanYi Micro Hei, sans-serif;

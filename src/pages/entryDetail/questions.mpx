@@ -1,7 +1,8 @@
 <template>
-  <van-loading color="#1989fa" wx:if="{{state=='loading'}}"/>
-  <view wx:if="{{state=='finish'}}">{{ques}}</view>
+  <view class="loading_wrap" wx:if="{{state=='loading'}}"><van-loading color="#1989fa"/></view>
+  <view wx:if="{{state=='finish'}}">{{ ques }}</view>
   <!-- //!Doing -->
+  <van-empty wx:if="{{ state=='empty' }}" image="search" description="暂时没有问题" />
 </template>
 
 <script>
@@ -9,45 +10,50 @@
   import Toast from '../../components/vant/toast/toast'
   import { navTo } from '../../utils/common'
   import { createPage } from '@mpxjs/core'
+  import { errors } from '../../utils/config'
 
   createPage({
     data: {
-        ques: [],
-        state: '',
+      ques: [],
+      state: ''
     },
     async onLoad(options) {
       this.setData({ state: 'loading' })
-      const entry_id=options.entry_id;
+      const entry_id = options.entry_id
       try {
         var ret = await request({
           url: '/entry/getQuestion',
           data: {
-            id: entry_id,
+            id: entry_id
           },
           method: 'POST'
-        });
-        console.log('getQuestion',ret);
+        })
+        console.log('getQuestion', ret)
         this.setData({
           ques: ret.data.data.question[0]
-        });
-        console.log('ok',this.data.ques);
+        })
+        console.log('ok', this.data.ques)
         this.setData({ state: 'finish' })
       } catch (err) {
-        this.setData({ state: 'error' })
-        console.log("neterr=> questions: 37", err)
+        if (ret.data == errors.no_questions) {
+          this.setData({ state: 'empty' })
+        } else {
+          this.setData({ state: 'error' })
+          console.log('neterr=> questions: 37', err)
+        }
       }
-    },
+    }
   })
 </script>
 
 <style lang="less">
-
 </style>
 
 <script type="application/json">
   {
     "usingComponents": {
-      "van-loading": "../../components/vant/loading/index"
+      "van-loading": "../../components/vant/loading/index",
+      "van-empty": "../../components/vant/empty/index"
     }
   }
 </script>

@@ -1,5 +1,5 @@
 <template>
-  <van-loading color="#1989fa" wx:if="{{state=='loading'}}"/>
+  <view class="loading_wrap" wx:if="{{state=='loading'}}"><van-loading color="#1989fa" /></view>
   <view wx:if="{{ state == 'finish'}}" class="wrap">
     <view class="fav_wrap">
       <view class="fav">我的收藏</view>

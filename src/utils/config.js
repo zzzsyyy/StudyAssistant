@@ -1,4 +1,4 @@
-const version = "0.65_beta";
+const version = "0.68_beta";
 const contact = {
   email: "me@zzzsy.top",
   wx_id: "zsyyy_8",
@@ -20,8 +20,14 @@ const pages = {
   questions: "/pages/entryDetail/questions"
 };
 const errors = {
-  no_entry: "Entry matching query does not exist."
+  no_entry: "Entry matching query does not exist.",
+  no_questions: "substring not found"
 }
 
+// const apis = {
+//   entry : {
+
+//   }
+// }
 
 export { pages, version, contact, errors };

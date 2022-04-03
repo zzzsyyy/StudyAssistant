@@ -1,5 +1,5 @@
 <template>
-  <van-loading color="#1989fa" wx:if="{{state=='loading'}}"/>
+  <view class="loading_wrap" wx:if="{{state=='loading'}}"><van-loading color="#1989fa" /></view>
   <view wx:if="{{ state == 'finish' }}" class="wrap">
     <view class="edit_wrap">
       <view class="edit">我的编辑</view>
@@ -34,7 +34,6 @@
   import { createPage } from '@mpxjs/core'
   import { navTo } from '../../utils/common'
   import { request } from '../../utils/request'
-  import pageStates from '../../utils/pageState'
 
   createPage({
     data: {

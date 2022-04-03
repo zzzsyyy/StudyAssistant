@@ -1,5 +1,5 @@
 <template>
-  <van-loading color="#1989fa" wx:if="{{state=='loading'}}"/>
+  <view class="loading_wrap" wx:if="{{state=='loading'}}"><van-loading color="#1989fa" /></view>
   <view class="title">
     <view class="tt">{{ detail.title }}</view>
     <view class="chinese">{{ detail.chinese }}</view>
@@ -118,7 +118,6 @@
   import getEntryId from '../../utils/getEntryId'
   import { errors } from '../../utils/config'
   import {createPage} from '@mpxjs/core'
-  import store from '../../utils/store'
 
   const app = getApp()
 

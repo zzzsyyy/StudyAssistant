@@ -13,8 +13,8 @@
     </view>
   </van-search>
 
-  <van-skeleton wx:if="{{ state=='loading' }}" class="sk" wx:for="{{ 7 }}"> </van-skeleton>
-
+  <!-- <van-skeleton wx:if="{{ state=='loading' }}" class="sk" wx:for="{{ 7 }}"> </van-skeleton> -->
+  <view class="loading_wrap" wx:if="{{state=='loading'}}"><van-loading color="#1989fa" /></view>
   <view wx:if="{{ state=='finish' }}" wx:for="{{ resultList }}">
     <entry-item
       bind:tap="navToDetail"
@@ -33,7 +33,6 @@
   import { createPage } from '@mpxjs/core'
   import { request } from '../../utils/request'
   import { navTo } from '../../utils/common'
-  import pageStates from '../../utils/pageState'
 
   createPage({
     data: {
@@ -49,7 +48,7 @@
       this.search(this.data.keyword)
     },
     onLoad(options) {
-            this.setData({ state: 'loading' })
+      this.setData({ state: 'loading' })
       var keyword = options.keyword
       const { theme } = wx.getSystemInfoSync()
       console.log(theme)
@@ -76,7 +75,7 @@
       }
       if (this.data.resultList.length == 0 && this.data.state != 'error') {
         console.log('search empty')
-        this.setData({ state: 'finish' })
+        this.setData({ state: 'empty' })
       }
     },
     //跳转详情页面
@@ -112,7 +111,7 @@
       "van-search": "../../components/vant/search/index",
       "entry-item": "../../components/entry-item/entry-item",
       "van-empty": "../../components/vant/empty/index",
-      "van-skeleton": "../../components/vant/skeleton/index"
+      "van-loading": "../../components/vant/loading/index"
     }
   }
 </script>
