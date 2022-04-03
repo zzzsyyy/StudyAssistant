@@ -43,6 +43,7 @@
   import { navTo, convertDetail } from '../../utils/common'
   import Dialog from '../../components/vant/dialog/dialog'
   import { request } from '../../utils/request'
+  import { apis } from '../../utils/config'
 
   const app = getApp()
 
@@ -128,7 +129,7 @@
       const entry_id = this.data.entry_id
       try {
         var res = await request({
-          url: '/entry/updateentry',
+          url: apis.entry.update,
           data: {
             entry_id: entry_id,
             entry: entry,

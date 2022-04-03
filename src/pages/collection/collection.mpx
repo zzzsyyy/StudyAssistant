@@ -1,5 +1,5 @@
 <template>
-  <view class="loading_wrap" wx:if="{{state=='loading'}}"><van-loading color="#1989fa" /></view>
+  <view class="loading_wrap" wx:if="{{state=='loading'}}"><van-loading color="#1989fa"/></view>
   <view wx:if="{{ state == 'finish'}}" class="wrap">
     <view class="fav_wrap">
       <view class="fav">我的收藏</view>
@@ -61,6 +61,7 @@
   import { createPage } from '@mpxjs/core'
   import { navTo } from '../../utils/common'
   import { request } from '../../utils/request'
+  import { apis } from '../../utils/config'
 
   createPage({
     data: {
@@ -77,7 +78,7 @@
       this.setData({ state: 'loading' })
       try {
         const res = await request({
-          url: '/collection/sync',
+          url: apis.collection.sync,
           data: {
             user_id: wx.getStorageSync('user_id')
           },
@@ -181,7 +182,7 @@
     submit: async function() {
       try {
         const res = await request({
-          url: '/collection/submit',
+          url: apis.collection.submit,
           data: {
             user_collection: wx.getStorageSync('userCollection'),
             user_id: wx.getStorageSync('user_id')

@@ -10,7 +10,7 @@
   import Toast from '../../components/vant/toast/toast'
   import { navTo } from '../../utils/common'
   import { createPage } from '@mpxjs/core'
-  import { errors } from '../../utils/config'
+  import { errors, apis } from '../../utils/config'
 
   createPage({
     data: {
@@ -22,7 +22,7 @@
       const entry_id = options.entry_id
       try {
         var ret = await request({
-          url: '/entry/getQuestion',
+          url: apis.entry.getquestion,
           data: {
             id: entry_id
           },

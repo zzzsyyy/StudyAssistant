@@ -14,7 +14,7 @@
   </van-search>
 
   <!-- <van-skeleton wx:if="{{ state=='loading' }}" class="sk" wx:for="{{ 7 }}"> </van-skeleton> -->
-  <view class="loading_wrap" wx:if="{{state=='loading'}}"><van-loading color="#1989fa" /></view>
+  <view class="loading_wrap" wx:if="{{state=='loading'}}"><van-loading color="#1989fa"/></view>
   <view wx:if="{{ state=='finish' }}" wx:for="{{ resultList }}">
     <entry-item
       bind:tap="navToDetail"
@@ -33,6 +33,7 @@
   import { createPage } from '@mpxjs/core'
   import { request } from '../../utils/request'
   import { navTo } from '../../utils/common'
+  import { apis } from '../../utils/config'
 
   createPage({
     data: {
@@ -59,7 +60,7 @@
     async search(keyword) {
       try {
         const res = await request({
-          url: '/entry/entrysearch',
+          url: apis.entry.search,
           data: { keywords: keyword },
           method: 'GET'
         })
@@ -68,7 +69,6 @@
           resultList: res.data.data.result_list
         })
         this.setData({ state: 'finish' })
-
       } catch {
         this.setData({ state: 'error' })
         console.log('neterr')

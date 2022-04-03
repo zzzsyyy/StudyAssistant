@@ -1,10 +1,10 @@
 <template>
-  <view class="loading_wrap" wx:if="{{state=='loading'}}"><van-loading color="#1989fa" /></view>
+  <view class="loading_wrap" wx:if="{{state=='loading'}}"><van-loading color="#1989fa"/></view>
   <view class="title">
     <view class="tt">{{ detail.title }}</view>
     <view class="chinese">{{ detail.chinese }}</view>
   </view>
-  <split wx:if="{{state=='finish'}}"/>
+  <split wx:if="{{state=='finish'}}" />
   <view wx:if="{{state=='finish'&&isLogin}}" class="wrap">
     <van-icon
       bind:tap="onCollectThisEntry"
@@ -17,7 +17,7 @@
     <!-- Doing -->
     <view bind:tap="onRelevantQ" class="relq">相关问题</view>
   </view>
-  <split wx:if="{{state=='finish'}}"/>
+  <split wx:if="{{state=='finish'}}" />
   <view wx:if="{{ show.content && entryDetail.content }}" class="tow">
     <towxml nodes="{{ detail.content }}" />
   </view>
@@ -116,8 +116,8 @@
   import Toast from '../../components/vant/toast/toast'
   import { navTo } from '../../utils/common'
   import getEntryId from '../../utils/getEntryId'
-  import { errors } from '../../utils/config'
-  import {createPage} from '@mpxjs/core'
+  import { errors, apis } from '../../utils/config'
+  import { createPage } from '@mpxjs/core'
 
   const app = getApp()
 
@@ -135,7 +135,7 @@
       },
       isLogin: false,
       state: '',
-      is_collected: false,
+      is_collected: false
     },
 
     //*Done
@@ -165,7 +165,7 @@
       try {
         if (user_id != '0') {
           var res = await request({
-            url: '/entry/entrydetail',
+            url: apis.entry.detail,
             data: {
               entry_id: entry_id,
               user_id: user_id
@@ -174,7 +174,7 @@
           })
         } else {
           var res = await request({
-            url: '/entry/entrydetail',
+            url: apis.entry.detail,
             data: {
               entry_id: entry_id
             },
@@ -294,7 +294,7 @@
       if (this.data.is_collected) {
         try {
           const res = await request({
-            url: '/collection/delentry',
+            url: apis.collection.del,
             data: {
               user_id: this.data.user_id,
               entry_id: this.data.entry_id
@@ -315,7 +315,7 @@
       } else {
         try {
           const res = await request({
-            url: '/collection/addentry',
+            url: apis.collection.add,
             data: {
               user_id: this.data.user_id,
               entry_id: this.data.entry_id
@@ -349,7 +349,7 @@
     },
     //!Doing
     async onRelevantQ() {
-      const entry_id = this.data.entry_id;
+      const entry_id = this.data.entry_id
       console.log(entry_id)
       navTo({
         page: 'questions',

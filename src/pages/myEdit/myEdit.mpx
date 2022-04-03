@@ -1,5 +1,5 @@
 <template>
-  <view class="loading_wrap" wx:if="{{state=='loading'}}"><van-loading color="#1989fa" /></view>
+  <view class="loading_wrap" wx:if="{{state=='loading'}}"><van-loading color="#1989fa"/></view>
   <view wx:if="{{ state == 'finish' }}" class="wrap">
     <view class="edit_wrap">
       <view class="edit">我的编辑</view>
@@ -34,6 +34,7 @@
   import { createPage } from '@mpxjs/core'
   import { navTo } from '../../utils/common'
   import { request } from '../../utils/request'
+  import { apis } from '../../utils/config'
 
   createPage({
     data: {
@@ -46,7 +47,7 @@
       // pageState.loading()
       try {
         const res = await request({
-          url: '/entry/myedit',
+          url: apis.entry.myedit,
           data: {
             user_id: wx.getStorageSync('user_id')
           },

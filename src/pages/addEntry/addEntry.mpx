@@ -46,6 +46,7 @@
   import { navTo } from '../../utils/common'
   import Dialog from '../../components/vant/dialog/dialog'
   import { request } from '../../utils/request'
+  import { apis } from '../../utils/config'
 
   const app = getApp()
 
@@ -105,18 +106,18 @@
             this.onUpp()
           })
           .catch(err => {
-            console.log("err at addEntry: 108")
+            console.log('err at addEntry: 108')
             console.log(err)
           })
       }
     },
     async onUpp() {
       const new_entry = this.data.llist
-      console.log("entry", new_entry)
-      console.log("user_id",wx.getStorageSync('user_id'))
+      console.log('entry', new_entry)
+      console.log('user_id', wx.getStorageSync('user_id'))
       try {
         var res = await request({
-          url: '/entry/addentry',
+          url: apis.entry.add,
           data: {
             new_entry: new_entry,
             user_id: wx.getStorageSync('user_id')
@@ -124,7 +125,7 @@
           method: 'PUT'
         })
       } catch (err) {
-        console.log("err at addEntry: 127",err)
+        console.log('err at addEntry: 127', err)
         Toast({ message: '新建词条失败！', position: 'bottom' })
       }
       if (res.data.data.status == 'success') {

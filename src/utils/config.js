@@ -1,4 +1,4 @@
-const version = "0.68_beta";
+const version = "0.70_beta";
 const contact = {
   email: "me@zzzsy.top",
   wx_id: "zsyyy_8",
@@ -24,10 +24,25 @@ const errors = {
   no_questions: "substring not found"
 }
 
-// const apis = {
-//   entry : {
+const apis = {
+  entry : {
+    add: '/entry/addentry',
+    edit: '/entry/editentry',
+    detail: '/entry/entrydetail',
+    myedit: '/entry/myedit',
+    search: '/entry/entrysearch',
+    update: '/entry/updateentry',
+    getquestion: '/entry/getQuestion',
+  },
+  collection: {
+    sync: '/collection/sync',
+    submit: '/collection/submit',
+    del: '/collection/delentry',
+    add: '/collection/addentry',
+  },
+  login: {
+    login: '/login/login'
+  }
+}
 
-//   }
-// }
-
-export { pages, version, contact, errors };
+export { pages, version, contact, errors, apis };

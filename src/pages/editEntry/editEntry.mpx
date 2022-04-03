@@ -2,12 +2,18 @@
   <view class="type">{{ type }}</view>
   <view class="voc">{{ voc }}</view>
 
-<!-- Doing -->
+  <!-- Doing -->
   <view class="tips">
     <block wx:for="{{tips}}">
-    <view class="tip" hover-class="tip_hover" hover-stay-time="120" data-tip="{{item}}" bind:tap="onTip">
-      {{item}}
-    </view>
+      <view
+        class="tip"
+        hover-class="tip_hover"
+        hover-stay-time="120"
+        data-tip="{{item}}"
+        bind:tap="onTip"
+      >
+        {{ item }}
+      </view>
     </block>
   </view>
 
@@ -58,6 +64,7 @@
   import Toast from '../../components/vant/toast/toast'
   import { navTo } from '../../utils/common'
   import { createPage } from '@mpxjs/core'
+  import { apis } from '../../utils/config'
 
   createPage({
     data: {
@@ -67,7 +74,7 @@
       rawMD: '',
       backup: '',
       flag: 1,
-      tips:['#','*','-','$','>','\\','{','}']
+      tips: ['#', '*', '-', '$', '>', '\\', '{', '}']
     },
     onLoad(options) {
       const _ts = this
@@ -185,7 +192,7 @@
       var { type, entry_id, rawMD } = this.data
       try {
         const res = await request({
-          url: '/entry/editentry',
+          url: apis.entry.edit,
           method: 'POST',
           data: {
             type: type,

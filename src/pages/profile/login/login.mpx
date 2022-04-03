@@ -27,12 +27,13 @@
   import { login } from '../../../utils/login'
   import { request } from '../../../utils/request'
   import { convertUserInfo } from '../../../utils/common'
+  import { apis } from '../../../utils/config'
 
   createPage({
     data: {},
     myLogin: async function(code, userinfo) {
       let res = await request({
-        url: '/login/login',
+        url: apis.login.login,
         data: { code: code, userinfo: userinfo },
         method: 'POST'
       })
