@@ -1,7 +1,15 @@
 <template>
   <view class="loading_wrap" wx:if="{{state=='loading'}}"><van-loading color="#1989fa"/></view>
-  <view wx:if="{{state=='finish'}}">{{ ques }}</view>
+  <!-- <view> -->
+  <view wx:if="{{state=='finish'}}">
+  <view>Question:</view>
+  <view >{{ ques }}</view>
+  </view>
   <!-- //!Doing -->
+  <view wx:if="{{state=='finish'}}" class="ans">
+  <view>Answer:</view>
+  <view>{{ans}}</view>
+  </view>
   <van-empty wx:if="{{ state=='empty' }}" image="search" description="暂时没有问题" />
 </template>
 
@@ -30,7 +38,8 @@
         })
         console.log('getQuestion', ret)
         this.setData({
-          ques: ret.data.data.question[0]
+          ques: ret.data.data.question[0],
+          ans: ret.data.data.answer
         })
         console.log('ok', this.data.ques)
         this.setData({ state: 'finish' })
@@ -47,6 +56,18 @@
 </script>
 
 <style lang="less">
+page{
+  background-color: var(--pageColorLight);
+}
+.ans{
+  position: absolute;
+  bottom: 20rpx
+}
+@media (prefers-color-scheme: dark) {
+    page {
+      background-color: var(--pageColorDark);
+    }
+}
 </style>
 
 <script type="application/json">

@@ -276,7 +276,7 @@
         if (this.data.entry_id != entry_id_tmp) {
           navTo({
             page: 'entryDetail',
-            args: '?entry_id=${entry_id_tmp}'
+            args: `?entry_id=${entry_id_tmp}`
           })
         }
       }
